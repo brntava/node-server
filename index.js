@@ -1,14 +1,17 @@
 // Criar server com node
 
 const express = require('express');
-
-let routesIndex = require('./routes/index.js')
-let routesUsers = require('./routes/users.js')
+const consign = require('consign');
+const bodyParses = require('body-parser');
 
 let app = express();
 
-app.use(routesIndex);
-app.use('/users', routesUsers);
+app.use(bodyParses.urlencoded({ extended: false }))
+app.use(bodyParses.json()); // dados q vierem vao virar json ja
+
+
+// Inclui a pasta routes e add no app
+consign().include('routes').into(app);
 
 // Subir servidor
 
