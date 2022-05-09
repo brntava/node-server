@@ -11,7 +11,7 @@ app.use(bodyParses.json()); // dados q vierem vao virar json ja
 
 
 // Inclui a pasta routes e add no app
-consign().include('routes').into(app);
+consign().include('routes').include('utils').into(app);
 
 // Subir servidor
 
