@@ -1,5 +1,7 @@
 let NeDB = require('nedb');
 
+const{body, validationResult} = require('express-validator');
+
 let db = new NeDB({
     
     filename: 'users.db',
@@ -33,27 +35,37 @@ module.exports = app =>{
         });
     });
     
-    routes.post((req, res) =>{
-    
+    routes.post([body('name').notEmpty().withMessage('Nome é obrigatorio'),
+                body('password').notEmpty().withMessage('Senha obrigatoria'),
+                body('email').isEmail().withMessage('Email esta invalido')],
+                (req, res) =>{
 
-        db.insert(req.body, (err, user) =>{
+                let errors = validationResult(req);
 
-            if(err){
+                if(errors){
 
-                console.log(`Erro: ${err}`);
-                res.status(400).json({
-                    error: err
-                });
+                    app.utils.error.send(errors, req, res);
+                    return false
 
-            } else {
+                };
 
-                res.status(200).json(user);
+                db.insert(req.body, (err, user) =>{
+                    
+                    if(err){
 
-            }
+                        app.utils.error.send(err, req, res);
 
-        })
+                    } else {
+
+                        res.status(200).json(user);
+
+                    }
+
+                })
     
     })
+
+    // Pegar dados pelo id
 
     let routeId = app.route('/users/:id');
 
@@ -76,7 +88,53 @@ module.exports = app =>{
 
         });
 
-    })
+    });
 
+    // Atualizar dados
+
+    routeId.put((req, res) =>{
+
+        db.update({_id:req.params.id}, req.body, err=>{
+
+            if(err){
+
+                console.log(`Erro: ${err}`);
+                res.status(400).json({
+                    error: err
+                });
+
+            } else {
+
+                res.status(200).json(Object.assign(req.params, req.body));
+
+            }
+
+        });
+
+    });
+
+    // Deletar dados
+
+    routeId.delete((req, res) =>{
+
+        db.remove({_id:req.params.id}, {}, err =>{
+
+            if(err){
+
+                console.log(`Erro: ${err}`);
+                res.status(400).json({
+                    error: err
+                });
+
+            } else {
+                // Mostra oq foi exluicod
+                res.status(200).json(req.params);
+
+            }
+
+
+        })
+
+    })
 
 };

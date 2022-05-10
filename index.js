@@ -9,8 +9,8 @@ let app = express();
 app.use(bodyParses.urlencoded({ extended: false }))
 app.use(bodyParses.json()); // dados q vierem vao virar json ja
 
+// Inclui a pasta routes e utils, e add no app
 
-// Inclui a pasta routes e add no app
 consign().include('routes').include('utils').into(app);
 
 // Subir servidor
